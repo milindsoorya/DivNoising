@@ -1,0 +1,4 @@
+examples/**/__MACOSX
+examples/**/*.tif
+examples/**/*.zip
+__pycache__/
