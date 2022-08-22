@@ -2,3 +2,8 @@ examples/**/__MACOSX
 examples/**/*.tif
 examples/**/*.zip
 __pycache__/
+data/**/__MACOSX
+data/**/*.tif
+data/**/*.zip
+.ipynb_checkpoints/
+examples/Mouse_nuclei

@@ -82,13 +82,11 @@ def preprocess(train_patches,val_patches):
     x_val_tensor = convertNumpyToTensor(x_val_extra_axis)
     return x_train_tensor, x_val_tensor, data_mean, data_std
 
-
-    
-
 def get_trainval_patches(x,split_fraction=0.85,augment=True,patch_size=128,num_patches=None):
     np.random.shuffle(x)
     train_images = x[:int(split_fraction*x.shape[0])]
     val_images = x[int(split_fraction*x.shape[0]):]
+    x_train_crops = extract_patches(train_images, patch_size, num_patches)
     x_val_crops = extract_patches(val_images, patch_size, num_patches)
     if(augment):
         x_train_crops = augment_data(x_train_crops)
@@ -444,7 +442,7 @@ def predict_and_save(img,vae,num_samples,device,
         num_images = len(img)
     if isinstance(img,(np.ndarray)):
         num_images = img.shape[0]
-    for i in range(1):
+    for i in range(num_images):
         print("Processing image:", i)
         if tta:
             aug_imgs = tta_forward(img[i])
@@ -467,7 +465,6 @@ def predict_and_save(img,vae,num_samples,device,
                 os.makedirs(subdir)
             imsave(subdir+"samples_for_image_"+str(i).zfill(3)+".tif",
                    np.array(samples[:int(num_samples*fraction_samples_to_export)]).astype("float32"))
-            
     if (export_mmse):    
         imsave(export_results_path+"/mmse_results.tif", np.array(mmse_results).astype("float32"))
     return mmse_results

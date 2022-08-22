@@ -21,7 +21,7 @@ def create_dataloaders(x_train_tensor,x_val_tensor,batch_size):
 def create_model_and_train(basedir,data_mean,data_std,gaussian_noise_std,
                            noise_model,n_depth,max_epochs,logger,
                            checkpoint_callback,train_loader,val_loader,
-                           kl_annealing, weights_summary):
+                           kl_annealing):
     
     for filename in glob.glob(basedir+"/*"):
             os.remove(filename) 
@@ -37,12 +37,12 @@ def create_model_and_train(basedir,data_mean,data_std,gaussian_noise_std,
         trainer = pl.Trainer(gpus=1, max_epochs=max_epochs, logger=logger,
                              callbacks=
                              [EarlyStopping(monitor='val_loss', min_delta=1e-6, 
-                              patience = 100, verbose = True, mode='min'),checkpoint_callback], weights_summary=weights_summary)
+                              patience = 100, verbose = True, mode='min'),checkpoint_callback])
     else:
         trainer = pl.Trainer(max_epochs=max_epochs, logger=logger,
                              callbacks=
                              [EarlyStopping(monitor='val_loss', min_delta=1e-6, 
-                              patience = 100, verbose = True, mode='min'),checkpoint_callback], weights_summary=weights_summary)
+                              patience = 100, verbose = True, mode='min'),checkpoint_callback])
     trainer.fit(vae, train_loader, val_loader)
     collapse_flag = vae.collapse
     return collapse_flag
@@ -64,15 +64,13 @@ def train_network(x_train_tensor, x_val_tensor, batch_size, data_mean, data_std,
     mode='min',)
     checkpoint_callback.CHECKPOINT_NAME_LAST = model_name+"_last"
     logger = TensorBoardLogger(basedir, name= "", version="", default_hp_metric=False)
-    weights_summary="top" if log_info else None
-    if not log_info:
-        pl.utilities.distributed.log.setLevel(logging.ERROR)
+     
     posterior_collapse_count = 0
     
     while collapse_flag and posterior_collapse_count<20:
         collapse_flag = create_model_and_train(basedir,data_mean,data_std,gaussian_noise_std,noise_model,
                                                n_depth,max_epochs,logger,checkpoint_callback,
-                                               train_loader,val_loader,kl_annealing=False, weights_summary=weights_summary)
+                                               train_loader,val_loader,kl_annealing=False, )
         if collapse_flag:
             posterior_collapse_count=posterior_collapse_count+1
         
@@ -81,5 +79,5 @@ def train_network(x_train_tensor, x_val_tensor, batch_size, data_mean, data_std,
         while collapse_flag:
             collapse_flag = create_model_and_train(basedir,data_mean,data_std,gaussian_noise_std,noise_model,
                                                n_depth,max_epochs,logger,checkpoint_callback,
-                                               train_loader,val_loader,kl_annealing=True, weights_summary=weights_summary)
+                                               train_loader,val_loader,kl_annealing=True, )
        

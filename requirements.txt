@@ -4,4 +4,6 @@ scipy
 tiffile
 tqdmzcp
 jupyterlab
-pytorch_lightning
+pytorch-lightning
+dvc
+ipywidgets
